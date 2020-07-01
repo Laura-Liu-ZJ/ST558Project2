@@ -10,126 +10,219 @@ output:
 knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
 ```
 
-# Introduction
-## Description of Data
-
-```{r pic,out.width="50%"}
-# # prepare for the package
-# library(knitr)
-# # show the picture of news
-# include_graphics("WeaverLankow.jpg")
-```
-
 ```{r library}
 # prepare for the packages
 library(readr)
 library(tidyverse)
 library(corrplot)
 library(ggplot2)
+library(leaps)
+library(caret)
 ```
 
-```{r readData}
-newsData <- read_csv("data/OnlineNewsPopularity.csv")%>%
-  select(-1,-2)
-newsData
-```
+# Introduction
+## [Description of Data](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity)
+
+This dataset summarizes a heterogeneous set of features about articles published by Mashable in a period of two years. The full dataset have 39644 observations and 61 variables. However, there are only 1 response and 8 predictors we interested due to the later variable selection. And following is the description of variables we cared about.
+
+* Response:  
+    + shares: Number of shares
+* Predictors:  
+    + num_hrefs: Number of links 
+    + average_token_length: Average length of the words in the content 
+    + data_channel_is_entertainment: Is data channel 'Entertainment'? 
+    + kw_min_avg: Avg. keyword (min. shares)
+    + kw_max_avg: Avg. keyword (max. shares)
+    + kw_avg_avg: Avg. keyword (avg. shares) 
+    + self_reference_min_shares: Min. shares of referenced articles in Mashable 
+    + global_subjectivity: Text subjectivity 
 
 ## Analysis Purpose
 
+In this project, I try to use a linear model and a non-linear model to predict the number of shares in social networks.
+
 ## Methods Introduction
 
-### Linear Method
+### Linear Model
+binomial
+### treebag
 
-### Non-linear Methods
-
-#### Interaction
-
-#### Quartic
-
-#### kNN
-
-#### Classification Tree
 
 # Exploratory Data Analysis
 
-## Correlation Analysis
+```{r readData}
+newsData <- read_csv("data/OnlineNewsPopularity.csv")%>%
+  filter(weekday_is_monday==1)%>%
+  select(-1,-2)%>%
+  mutate(sharesInd = ifelse(shares < 1400,0,1))
+newsData
 
-According to the first correlation plot, we know that `num_hrefs`, `num_imgs`, `num_videos`, `average_token_length`, `num_keywords`, `data_channel_is_entertainment`, `data_channel_is_bus`, `data_channel_is_tech`, `data_channel_is_world`, `kw_max_min`, `kw_avg_min`,`kw_avg_max`, `kw_min_avg`, `kw_max_avg`, `kw_avg_avg`, `self_reference_min_shares`, `self_reference_max_shares`, `self_reference_avg_sharess`, `LDA_01`, `LDA_02`, `LDA_03`, `LDA_04`, `global_subjectivity`, `rate_positive_words`, `avg_positive_polarity`, `max_positive_polarity`, `avg_negative_polarity`, `min_negative_polarity`, `max_negative_polarity`, `title_subjectivity`, `title_sentiment_polarity`, and `abs_title_sentiment_polarity` have a sigificant relationship between shares.
+newsData$sharesInd <- as.factor(newsData$sharesInd)
 
-Also, from the second correlation plot, we can notice that `average_token_length`, `kw_avg_min`, `self_reference_min_shares`, `self_reference_max_shares`, `self_reference_avg_sharess` are independent with "weekday_is_*" variables.
+anyNA(newsData)
 
-Furthermore, according to the third correlation plot, we drop `self_reference_min_shares` and `self_reference_max_shares` variables becasue of multicollinearity. Thus, our predictors are `average_token_length`, `kw_avg_min` and `self_reference_avg_sharess`, and our reponse is `shares.`
+# set seed to generate reproducable results
+set.seed(1) 
+# split raw data set into training data set and test data set
+train <- sample(1:nrow(newsData), size = nrow(newsData)*0.7) 
+test <- dplyr::setdiff(1:nrow(newsData), train)
+newsDataTrain <- newsData[train, ] 
+newsDataTest <- newsData[test, ]
 
-```{r cor,out.width="200%"}
-# prepare the data for the correlation part
-cor.data <- newsData
-# get the correlation test to drop variables
-cor.test <- cor.mtest(cor.data,conf.level=0.95)
-# get the correlation plot
-corrplot(cor(cor.data,use= "na.or.complete"), 
-         p.mat=cor.test$p,
-         sig.level=0.05,
-         diag = FALSE, 
-         order = "original",
-         tl.pos = "td", 
-         tl.cex = 0.5, 
-         method = "color", 
-         type = "upper",
-         pch.cex = 0.5)
-
-cor.data2 <- newsData %>%
-  select (num_hrefs, num_imgs, num_videos, average_token_length, num_keywords, data_channel_is_entertainment, data_channel_is_bus, data_channel_is_tech, data_channel_is_world, kw_max_min, kw_avg_min,kw_avg_max, kw_min_avg, kw_max_avg, kw_avg_avg, self_reference_min_shares, self_reference_max_shares, self_reference_avg_sharess, LDA_01, LDA_02, LDA_03, LDA_04, global_subjectivity, rate_positive_words, avg_positive_polarity, max_positive_polarity, avg_negative_polarity, min_negative_polarity, max_negative_polarity, title_subjectivity, title_sentiment_polarity, abs_title_sentiment_polarity, contains("weekday_is_"))
-
-cor.test2 <- cor.mtest(cor.data2,conf.level=0.95)
-
-corrplot(cor(cor.data2,use= "na.or.complete"), 
-         p.mat=cor.test2$p,
-         sig.level=0.05,
-         diag = FALSE, 
-         order = "original",
-         tl.pos = "td", 
-         tl.cex = 1, 
-         method = "color", 
-         type = "upper",
-         pch.cex = 1)
-
-cor.data3 <- newsData %>%
-  select(average_token_length, kw_avg_min, self_reference_min_shares, self_reference_max_shares, self_reference_avg_sharess,shares,contains("weekday_is_"))
-
-cor.test3 <- cor.mtest(cor.data3,conf.level=0.95)
-
-corrplot(cor(cor.data3,use= "na.or.complete"), 
-         p.mat=cor.test3$p,
-         sig.level=0.05,
-         diag = FALSE, 
-         order = "original",
-         tl.pos = "td", 
-         tl.cex = 1, 
-         method = "color", 
-         type = "upper",
-         pch.cex = 1,
-         addCoef.col = "black",
-          number.cex = .7)
-```
-
-## Predictor Analysis
-```{r}
-Data<- newsData %>%
-  select(average_token_length, kw_avg_min,self_reference_avg_sharess,shares)
-summary(Data)
-# ggGalley
+# checking the dimension of our training and testing data sets
+dim(newsDataTrain)
+dim(newsDataTest)
 ```
 
 ## Response Analysis
 
+From the histogram of response, we know that shares is more like a gamma distribution other than normal distribution.
+
 ```{r}
-ggplot(data=Data %>%filter(shares < 100000 ),aes(x=shares)) +
-  geom_histogram()
+#newsDataTrain
+ggplot(data=newsDataTrain,aes(x=shares)) +
+  geom_histogram(aes(y=..density..),fill="steelblue")+
+  geom_density(alpha=0.5)+
+  labs(title = "Histogram of Respose")
+ggplot(data=newsDataTrain %>%
+         filter(sharesInd == 1),
+       aes(x=shares)) +
+  geom_histogram(aes(y=..density..),fill="steelblue")+
+  geom_density(alpha=0.5)+
+  labs(title = "Histogram of Respose (shares >= 1400)")
+ggplot(data=newsDataTrain %>%
+         filter(sharesInd == 0),
+       aes(x=shares)) +
+  geom_histogram(aes(y=..density..),fill="steelblue")+
+  geom_density(alpha=0.5)+
+  labs(title = "Histogram of Respose (shares < 1400)")
+```
+
+```{r}
+orgAccuracyTrain <- round(table(newsDataTrain$sharesInd)[2]/nrow(newsDataTrain),4)
+orgAPERTrain <- 1-orgAccuracyTrain
+orgAccuracyTest <- round(table(newsDataTest$sharesInd)[2]/nrow(newsDataTest),4)
+orgAPERTest <- 1-orgAccuracyTest
+```
+
+## Variables Selection
+
+```{r}
+library(leaps)
+# variables selection process
+all<-regsubsets(sharesInd~., 
+                data=newsDataTrain %>% select(-shares), 
+                nbest=1, really.big=T)
+info <- summary(all)
+# combine the information of some marks
+selectData<-cbind(info$which, round(cbind(rsq=info$rsq, 
+                              adjr2=info$adjr2,
+                              cp=info$cp,
+                              bic=info$bic, 
+                              rss=info$rss), 3)) %>% 
+  tbl_df() %>% arrange(bic)
+
+# get the variables' name from above result
+varName <- colnames(selectData)[which(selectData[1,] == 1)][-1]
+varName
+
+# generate the data set only from above results
+newsDataFit <- newsDataTrain %>%
+  select(sharesInd,contains(varName))
+```
+
+
+## Predictors Analysis
+
+```{r}
+summary(newsDataFit[,-1])
+library(GGally)
+
+ggpairs(newsDataFit,
+        aes(colour = sharesInd,alpha=0.4),
+        upper = "blank",
+        lower = list(continuous = wrap("smooth",
+                                       alpha = 0.3,
+                                       size=0.01)))
 ```
 
 # Model Fitting
 
+## Linear Model
+
+We would expect most of our predictors pass the F-test.
+
+```{r}
+linearModel <- glm(sharesInd ~ .,newsDataFit,family="binomial")
+summary(linearModel)
+# predict reponse by fitting model
+linearTrainPred <- ifelse(exp(predict(linearModel, newdata = newsDataFit,type="link"))<1,0,1)
+# Corss validation
+linearFit <- confusionMatrix(as.factor(linearTrainPred), newsDataFit$sharesInd)
+linearFit
+linearFit$overall[1]
+```
+
+## Non-linear Model
+
+```{r}
+# set seed to get a reproducable result
+set.seed(1)
+# fit the bagged tree model
+treebagFit <- train(sharesInd ~ ., 
+                    data = newsDataFit, 
+                    method = "treebag", 
+                    tuneLength = 10,
+                    preProcess = c("center", "scale"))
+# get the fit result
+treebagFit
+```
+
+
 # Model Testing
 
-# Conclusion
+## Linear Model
+
+```{r}
+# predict reponse by fitting model
+linearTestPred <- ifelse(exp(predict(linearModel, newdata = newsDataTest,type="link"))<1,0,1)
+# Corss validation
+library(caret)
+linearResult <- confusionMatrix(as.factor(linearTestPred), newsDataTest$sharesInd)
+linearResult
+```
+
+## Non-linear Model
+```{r}
+# predict reponse by fitting model
+treebagTestPred <- predict(treebagFit, newdata = newsDataTest)
+# Corss validation
+treebagResult <- confusionMatrix(treebagTestPred, newsDataTest$sharesInd)
+treebagResult
+```
+
+# Models Comparison
+
+```{r}
+Accuracytable<- round(data.frame(Train=rbind(linearFit$overall[1],
+                                             treebagFit$results$Accuracy,
+                                             orgAccuracyTrain),
+                                 Test = rbind(linearResult$overall[1],
+                                              treebagResult$overall[1],
+                                              orgAccuracyTest),
+                                 row.names = c("Linear Model",
+                                               "Non-linear Model",
+                                               "Original Data")
+                                 ),4)
+APERtable <- 1-Accuracytable
+library(knitr)
+kable(Accuracytable,
+      row.names=TRUE,
+      col.names = c("Train","Test"),
+      caption = "Accuracy Table")
+kable(APERtable,
+      row.names=TRUE,
+      col.names = c("Train","Test"),
+      caption = "APER Table")
+```
 
