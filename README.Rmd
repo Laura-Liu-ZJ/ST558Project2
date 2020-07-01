@@ -1,0 +1,135 @@
+---
+title: "Project2"
+author: "Zhijun Liu"
+date: "`r Sys.Date()`"
+output:  
+  rmarkdown::github_document:  
+    toc: TRUE
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message = FALSE,warning = FALSE)
+```
+
+# Introduction
+## Description of Data
+
+```{r pic,out.width="50%"}
+# # prepare for the package
+# library(knitr)
+# # show the picture of news
+# include_graphics("WeaverLankow.jpg")
+```
+
+```{r library}
+# prepare for the packages
+library(readr)
+library(tidyverse)
+library(corrplot)
+library(ggplot2)
+```
+
+```{r readData}
+newsData <- read_csv("data/OnlineNewsPopularity.csv")%>%
+  select(-1,-2)
+newsData
+```
+
+## Analysis Purpose
+
+## Methods Introduction
+
+### Linear Method
+
+### Non-linear Methods
+
+#### Interaction
+
+#### Quartic
+
+#### kNN
+
+#### Classification Tree
+
+# Exploratory Data Analysis
+
+## Correlation Analysis
+
+According to the first correlation plot, we know that `num_hrefs`, `num_imgs`, `num_videos`, `average_token_length`, `num_keywords`, `data_channel_is_entertainment`, `data_channel_is_bus`, `data_channel_is_tech`, `data_channel_is_world`, `kw_max_min`, `kw_avg_min`,`kw_avg_max`, `kw_min_avg`, `kw_max_avg`, `kw_avg_avg`, `self_reference_min_shares`, `self_reference_max_shares`, `self_reference_avg_sharess`, `LDA_01`, `LDA_02`, `LDA_03`, `LDA_04`, `global_subjectivity`, `rate_positive_words`, `avg_positive_polarity`, `max_positive_polarity`, `avg_negative_polarity`, `min_negative_polarity`, `max_negative_polarity`, `title_subjectivity`, `title_sentiment_polarity`, and `abs_title_sentiment_polarity` have a sigificant relationship between shares.
+
+Also, from the second correlation plot, we can notice that `average_token_length`, `kw_avg_min`, `self_reference_min_shares`, `self_reference_max_shares`, `self_reference_avg_sharess` are independent with "weekday_is_*" variables.
+
+Furthermore, according to the third correlation plot, we drop `self_reference_min_shares` and `self_reference_max_shares` variables becasue of multicollinearity. Thus, our predictors are `average_token_length`, `kw_avg_min` and `self_reference_avg_sharess`, and our reponse is `shares.`
+
+```{r cor,out.width="200%"}
+# prepare the data for the correlation part
+cor.data <- newsData
+# get the correlation test to drop variables
+cor.test <- cor.mtest(cor.data,conf.level=0.95)
+# get the correlation plot
+corrplot(cor(cor.data,use= "na.or.complete"), 
+         p.mat=cor.test$p,
+         sig.level=0.05,
+         diag = FALSE, 
+         order = "original",
+         tl.pos = "td", 
+         tl.cex = 0.5, 
+         method = "color", 
+         type = "upper",
+         pch.cex = 0.5)
+
+cor.data2 <- newsData %>%
+  select (num_hrefs, num_imgs, num_videos, average_token_length, num_keywords, data_channel_is_entertainment, data_channel_is_bus, data_channel_is_tech, data_channel_is_world, kw_max_min, kw_avg_min,kw_avg_max, kw_min_avg, kw_max_avg, kw_avg_avg, self_reference_min_shares, self_reference_max_shares, self_reference_avg_sharess, LDA_01, LDA_02, LDA_03, LDA_04, global_subjectivity, rate_positive_words, avg_positive_polarity, max_positive_polarity, avg_negative_polarity, min_negative_polarity, max_negative_polarity, title_subjectivity, title_sentiment_polarity, abs_title_sentiment_polarity, contains("weekday_is_"))
+
+cor.test2 <- cor.mtest(cor.data2,conf.level=0.95)
+
+corrplot(cor(cor.data2,use= "na.or.complete"), 
+         p.mat=cor.test2$p,
+         sig.level=0.05,
+         diag = FALSE, 
+         order = "original",
+         tl.pos = "td", 
+         tl.cex = 1, 
+         method = "color", 
+         type = "upper",
+         pch.cex = 1)
+
+cor.data3 <- newsData %>%
+  select(average_token_length, kw_avg_min, self_reference_min_shares, self_reference_max_shares, self_reference_avg_sharess,shares,contains("weekday_is_"))
+
+cor.test3 <- cor.mtest(cor.data3,conf.level=0.95)
+
+corrplot(cor(cor.data3,use= "na.or.complete"), 
+         p.mat=cor.test3$p,
+         sig.level=0.05,
+         diag = FALSE, 
+         order = "original",
+         tl.pos = "td", 
+         tl.cex = 1, 
+         method = "color", 
+         type = "upper",
+         pch.cex = 1,
+         addCoef.col = "black",
+          number.cex = .7)
+```
+
+## Predictor Analysis
+```{r}
+Data<- newsData %>%
+  select(average_token_length, kw_avg_min,self_reference_avg_sharess,shares)
+summary(Data)
+# ggGalley
+```
+
+## Response Analysis
+
+```{r}
+ggplot(data=Data %>%filter(shares < 100000 ),aes(x=shares)) +
+  geom_histogram()
+```
+
+# Model Fitting
+
+# Model Testing
+
+# Conclusion
+
