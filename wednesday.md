@@ -1,7 +1,7 @@
 Project2
 ================
 Zhijun Liu
-2020-07-02
+2020-07-03
 
   - [Introduction](#introduction)
   - [Data](#data)
@@ -222,55 +222,55 @@ the maximum of each variable.
 summary(newsDataTrain)
 ```
 
-    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs     
-    ##  0:2692    Min.   :  0.00   Min.   : 0.000   Min.   : 0.000  
-    ##  1:2512    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.: 1.000  
-    ##            Median :  7.00   Median : 2.000   Median : 1.000  
-    ##            Mean   : 10.18   Mean   : 3.113   Mean   : 4.074  
-    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.: 3.000  
-    ##            Max.   :150.00   Max.   :41.000   Max.   :92.000  
-    ##   num_keywords    n_tokens_content n_unique_tokens 
-    ##  Min.   : 1.000   Min.   :   0.0   Min.   :0.0000  
-    ##  1st Qu.: 6.000   1st Qu.: 243.0   1st Qu.:0.4707  
-    ##  Median : 7.000   Median : 400.0   Median :0.5415  
-    ##  Mean   : 7.131   Mean   : 528.1   Mean   :0.5322  
-    ##  3rd Qu.: 9.000   3rd Qu.: 696.0   3rd Qu.:0.6126  
-    ##  Max.   :10.000   Max.   :4747.0   Max.   :0.9375  
-    ##  data_channel_is_entertainment data_channel_is_bus data_channel_is_socmed
-    ##  Min.   :0.0000                Min.   :0.0000      Min.   :0.00000       
-    ##  1st Qu.:0.0000                1st Qu.:0.0000      1st Qu.:0.00000       
-    ##  Median :0.0000                Median :0.0000      Median :0.00000       
-    ##  Mean   :0.1733                Mean   :0.1693      Mean   :0.05496       
-    ##  3rd Qu.:0.0000                3rd Qu.:0.0000      3rd Qu.:0.00000       
-    ##  Max.   :1.0000                Max.   :1.0000      Max.   :1.00000       
-    ##  data_channel_is_tech   kw_min_min       kw_max_max       kw_max_avg    
-    ##  Min.   :0.0000       Min.   : -1.00   Min.   : 17100   Min.   :  1953  
-    ##  1st Qu.:0.0000       1st Qu.: -1.00   1st Qu.:690400   1st Qu.:  3521  
-    ##  Median :0.0000       Median : -1.00   Median :843300   Median :  4257  
-    ##  Mean   :0.1845       Mean   : 27.51   Mean   :746551   Mean   :  5613  
-    ##  3rd Qu.:0.0000       3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  5937  
-    ##  Max.   :1.0000       Max.   :294.00   Max.   :843300   Max.   :112787  
-    ##    kw_avg_avg          LDA_00            LDA_01            LDA_02       
-    ##  Min.   :  424.3   Min.   :0.01828   Min.   :0.01819   Min.   :0.01819  
-    ##  1st Qu.: 2356.2   1st Qu.:0.02512   1st Qu.:0.02504   1st Qu.:0.02857  
-    ##  Median : 2832.3   Median :0.03348   Median :0.03335   Median :0.04003  
-    ##  Mean   : 3109.5   Mean   :0.18844   Mean   :0.13753   Mean   :0.22033  
-    ##  3rd Qu.: 3534.7   3rd Qu.:0.25223   3rd Qu.:0.14958   3rd Qu.:0.34746  
-    ##  Max.   :21000.7   Max.   :0.92000   Max.   :0.91998   Max.   :0.92000  
-    ##      LDA_03            LDA_04        title_sentiment_polarity
-    ##  Min.   :0.01820   Min.   :0.01818   Min.   :-1.0000         
-    ##  1st Qu.:0.02857   1st Qu.:0.02858   1st Qu.: 0.0000         
-    ##  Median :0.04000   Median :0.05000   Median : 0.0000         
-    ##  Mean   :0.21979   Mean   :0.23392   Mean   : 0.0656         
-    ##  3rd Qu.:0.36517   3rd Qu.:0.39822   3rd Qu.: 0.1364         
-    ##  Max.   :0.91998   Max.   :0.92712   Max.   : 1.0000         
-    ##  global_subjectivity self_reference_avg_sharess min_positive_polarity
-    ##  Min.   :0.0000      Min.   :     0.0           Min.   :0.00000      
-    ##  1st Qu.:0.3945      1st Qu.:   922.8           1st Qu.:0.05000      
-    ##  Median :0.4528      Median :  2150.0           Median :0.10000      
-    ##  Mean   :0.4413      Mean   :  6407.1           Mean   :0.09571      
-    ##  3rd Qu.:0.5047      3rd Qu.:  5100.0           3rd Qu.:0.10000      
-    ##  Max.   :1.0000      Max.   :690400.0           Max.   :1.00000
+    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs       num_keywords   
+    ##  0:2692    Min.   :  0.00   Min.   : 0.000   Min.   : 0.000   Min.   : 1.000  
+    ##  1:2512    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.: 6.000  
+    ##            Median :  7.00   Median : 2.000   Median : 1.000   Median : 7.000  
+    ##            Mean   : 10.18   Mean   : 3.113   Mean   : 4.074   Mean   : 7.131  
+    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.: 3.000   3rd Qu.: 9.000  
+    ##            Max.   :150.00   Max.   :41.000   Max.   :92.000   Max.   :10.000  
+    ##  n_tokens_content n_unique_tokens  data_channel_is_entertainment
+    ##  Min.   :   0.0   Min.   :0.0000   Min.   :0.0000               
+    ##  1st Qu.: 243.0   1st Qu.:0.4707   1st Qu.:0.0000               
+    ##  Median : 400.0   Median :0.5415   Median :0.0000               
+    ##  Mean   : 528.1   Mean   :0.5322   Mean   :0.1733               
+    ##  3rd Qu.: 696.0   3rd Qu.:0.6126   3rd Qu.:0.0000               
+    ##  Max.   :4747.0   Max.   :0.9375   Max.   :1.0000               
+    ##  data_channel_is_bus data_channel_is_socmed data_channel_is_tech
+    ##  Min.   :0.0000      Min.   :0.00000        Min.   :0.0000      
+    ##  1st Qu.:0.0000      1st Qu.:0.00000        1st Qu.:0.0000      
+    ##  Median :0.0000      Median :0.00000        Median :0.0000      
+    ##  Mean   :0.1693      Mean   :0.05496        Mean   :0.1845      
+    ##  3rd Qu.:0.0000      3rd Qu.:0.00000        3rd Qu.:0.0000      
+    ##  Max.   :1.0000      Max.   :1.00000        Max.   :1.0000      
+    ##    kw_min_min       kw_max_max       kw_max_avg       kw_avg_avg     
+    ##  Min.   : -1.00   Min.   : 17100   Min.   :  1953   Min.   :  424.3  
+    ##  1st Qu.: -1.00   1st Qu.:690400   1st Qu.:  3521   1st Qu.: 2356.2  
+    ##  Median : -1.00   Median :843300   Median :  4257   Median : 2832.3  
+    ##  Mean   : 27.51   Mean   :746551   Mean   :  5613   Mean   : 3109.5  
+    ##  3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  5937   3rd Qu.: 3534.7  
+    ##  Max.   :294.00   Max.   :843300   Max.   :112787   Max.   :21000.7  
+    ##      LDA_00            LDA_01            LDA_02            LDA_03       
+    ##  Min.   :0.01828   Min.   :0.01819   Min.   :0.01819   Min.   :0.01820  
+    ##  1st Qu.:0.02512   1st Qu.:0.02504   1st Qu.:0.02857   1st Qu.:0.02857  
+    ##  Median :0.03348   Median :0.03335   Median :0.04003   Median :0.04000  
+    ##  Mean   :0.18844   Mean   :0.13753   Mean   :0.22033   Mean   :0.21979  
+    ##  3rd Qu.:0.25223   3rd Qu.:0.14958   3rd Qu.:0.34746   3rd Qu.:0.36517  
+    ##  Max.   :0.92000   Max.   :0.91998   Max.   :0.92000   Max.   :0.91998  
+    ##      LDA_04        title_sentiment_polarity global_subjectivity
+    ##  Min.   :0.01818   Min.   :-1.0000          Min.   :0.0000     
+    ##  1st Qu.:0.02858   1st Qu.: 0.0000          1st Qu.:0.3945     
+    ##  Median :0.05000   Median : 0.0000          Median :0.4528     
+    ##  Mean   :0.23392   Mean   : 0.0656          Mean   :0.4413     
+    ##  3rd Qu.:0.39822   3rd Qu.: 0.1364          3rd Qu.:0.5047     
+    ##  Max.   :0.92712   Max.   : 1.0000          Max.   :1.0000     
+    ##  self_reference_avg_sharess min_positive_polarity
+    ##  Min.   :     0.0           Min.   :0.00000      
+    ##  1st Qu.:   922.8           1st Qu.:0.05000      
+    ##  Median :  2150.0           Median :0.10000      
+    ##  Mean   :  6407.1           Mean   :0.09571      
+    ##  3rd Qu.:  5100.0           3rd Qu.:0.10000      
+    ##  Max.   :690400.0           Max.   :1.00000
 
 ## Oringinal Accuracy
 
