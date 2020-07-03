@@ -8,7 +8,7 @@ Zhijun Liu
   - [Summarizations](#summarizations)
       - [Correlation Analysis](#correlation-analysis)
       - [Summary Statistics](#summary-statistics)
-      - [Oringinal Accuracy](#oringinal-accuracy)
+      - [Original Accuracy](#original-accuracy)
   - [Modeling](#modeling)
       - [Linear Model](#linear-model)
       - [Non-linear Model](#non-linear-model)
@@ -273,7 +273,7 @@ summary(newsDataTrain)
     ##  3rd Qu.:  5100.0           3rd Qu.:0.10000      
     ##  Max.   :663600.0           Max.   :1.00000
 
-## Oringinal Accuracy
+## Original Accuracy
 
 According to the contingency table, we calculate the accuracy for each
 data set by treating all the shares as in the “\>= 1400” group.
@@ -302,11 +302,11 @@ orgAccuracyTest
 
 We use the variables to choose from mallow’s cp and BIC as our
 predictors in the linear model. Therefore, we use `newsDataFit` data set
-for the linear model. But before fitting the model we should standardize
-our data first. And then, we need to calculate odds for given predictors
-and convert them into binary variables. After the prediction process, we
-using the confusion matrix to get the accuracy of the linear model for
-the training data set.
+for the logistic regression model. But before fitting the model we
+should standardize our data first. And then, we need to calculate odds
+for given predictors and convert them into binary variables. After the
+prediction process, we using the confusion matrix to get the accuracy of
+the linear model for the training data set.
 
 ``` r
 # standardize our data set
