@@ -13,8 +13,7 @@ output:
 library(rmarkdown)
 library(tidyverse)
 # get weekdays variables
-weekdays <- c("monday")
-# , "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"
+weekdays <- c("monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday")
 # create a list for each weekday with just the weekday parameter
 params <- lapply(weekdays, FUN = function(x){list(weekday = x)})
 # create file name
