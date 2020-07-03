@@ -79,10 +79,11 @@ data sets into two data sets, one is the training data set (70% of the
 data) and the other is the testing data set (30% of the data).
 
 ``` r
+weekday_is <- paste0("weekday_is_", params$weekday)
 # read the raw data
 newsData <- read_csv("data/OnlineNewsPopularity.csv")%>%
   # for specific weekday
-  filter(weekday_is_monday==1)%>%
+  filter(.data[[weekday_is]]==1)%>%
   # add new variable as an indicator of shares group
   mutate(sharesInd = ifelse(shares < 1400,0,1))%>%
   # select response and predictors we interested
@@ -172,10 +173,15 @@ newsDataFit <- newsDataTrain %>%
 # reorganize the data to do the correlation analysis
 shares <- as.numeric(newsDataFit$sharesInd)
 cor.data <- cbind(shares, newsDataFit[,-1])
-corrplot(cor(cor.data), lower.col = "steelblue",type="upper",tl.cex = 0.7,title="correlation plot")
+corrplot(cor(cor.data), 
+         lower.col = "steelblue",
+         type="upper",
+         tl.cex = 0.7,
+         title="Correlation Plot",
+         mar=c(0,0,2,0))
 ```
 
-<img src="README_files/figure-gfm/corrplot-1.png" width="200%" />
+<img src="monday_files/figure-gfm/corrplot-1.png" width="200%" />
 
 ``` r
 # get the name of variables who have positive or negative relationship with our response
@@ -216,55 +222,55 @@ the maximum of each variable.
 summary(newsDataTrain)
 ```
 
-    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs       num_keywords   
-    ##  0:2297    Min.   :  0.00   Min.   : 0.000   Min.   : 0.000   Min.   : 1.000  
-    ##  1:2365    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.: 6.000  
-    ##            Median :  7.00   Median : 3.000   Median : 1.000   Median : 7.000  
-    ##            Mean   : 10.62   Mean   : 3.367   Mean   : 4.382   Mean   : 7.153  
-    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.: 3.000   3rd Qu.: 9.000  
-    ##            Max.   :162.00   Max.   :51.000   Max.   :93.000   Max.   :10.000  
-    ##  n_tokens_content n_unique_tokens  data_channel_is_entertainment
-    ##  Min.   :   0.0   Min.   :0.0000   Min.   :0.0000               
-    ##  1st Qu.: 248.0   1st Qu.:0.4738   1st Qu.:0.0000               
-    ##  Median : 397.5   Median :0.5427   Median :0.0000               
-    ##  Mean   : 538.2   Mean   :0.5308   Mean   :0.2059               
-    ##  3rd Qu.: 711.0   3rd Qu.:0.6088   3rd Qu.:0.0000               
-    ##  Max.   :7764.0   Max.   :1.0000   Max.   :1.0000               
-    ##  data_channel_is_bus data_channel_is_socmed data_channel_is_tech
-    ##  Min.   :0.0000      Min.   :0.00000        Min.   :0.0000      
-    ##  1st Qu.:0.0000      1st Qu.:0.00000        1st Qu.:0.0000      
-    ##  Median :0.0000      Median :0.00000        Median :0.0000      
-    ##  Mean   :0.1695      Mean   :0.05277        Mean   :0.1836      
-    ##  3rd Qu.:0.0000      3rd Qu.:0.00000        3rd Qu.:0.0000      
-    ##  Max.   :1.0000      Max.   :1.00000        Max.   :1.0000      
-    ##    kw_min_min       kw_max_max       kw_max_avg       kw_avg_avg   
-    ##  Min.   : -1.00   Min.   :     0   Min.   :     0   Min.   :    0  
-    ##  1st Qu.: -1.00   1st Qu.:843300   1st Qu.:  3531   1st Qu.: 2355  
-    ##  Median : -1.00   Median :843300   Median :  4255   Median : 2832  
-    ##  Mean   : 26.82   Mean   :748229   Mean   :  5582   Mean   : 3074  
-    ##  3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  5938   3rd Qu.: 3535  
-    ##  Max.   :318.00   Max.   :843300   Max.   :298400   Max.   :33536  
-    ##      LDA_00            LDA_01            LDA_02            LDA_03       
-    ##  Min.   :0.01818   Min.   :0.01819   Min.   :0.01819   Min.   :0.01819  
-    ##  1st Qu.:0.02517   1st Qu.:0.02504   1st Qu.:0.02857   1st Qu.:0.02857  
-    ##  Median :0.03341   Median :0.03337   Median :0.04000   Median :0.04000  
-    ##  Mean   :0.18670   Mean   :0.15456   Mean   :0.21064   Mean   :0.21781  
-    ##  3rd Qu.:0.24603   3rd Qu.:0.17145   3rd Qu.:0.32402   3rd Qu.:0.35340  
-    ##  Max.   :0.91999   Max.   :0.91997   Max.   :0.92000   Max.   :0.91998  
-    ##      LDA_04        title_sentiment_polarity global_subjectivity
-    ##  Min.   :0.01818   Min.   :-1.00000         Min.   :0.0000     
-    ##  1st Qu.:0.02857   1st Qu.: 0.00000         1st Qu.:0.3951     
-    ##  Median :0.04001   Median : 0.00000         Median :0.4512     
-    ##  Mean   :0.23029   Mean   : 0.06694         Mean   :0.4402     
-    ##  3rd Qu.:0.39356   3rd Qu.: 0.13636         3rd Qu.:0.5047     
-    ##  Max.   :0.92708   Max.   : 1.00000         Max.   :1.0000     
-    ##  self_reference_avg_sharess min_positive_polarity
-    ##  Min.   :     0             Min.   :0.00000      
-    ##  1st Qu.:  1000             1st Qu.:0.05000      
-    ##  Median :  2168             Median :0.10000      
-    ##  Mean   :  6321             Mean   :0.09543      
-    ##  3rd Qu.:  5200             3rd Qu.:0.10000      
-    ##  Max.   :690400             Max.   :1.00000
+    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs     
+    ##  0:2297    Min.   :  0.00   Min.   : 0.000   Min.   : 0.000  
+    ##  1:2365    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.: 1.000  
+    ##            Median :  7.00   Median : 3.000   Median : 1.000  
+    ##            Mean   : 10.62   Mean   : 3.367   Mean   : 4.382  
+    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.: 3.000  
+    ##            Max.   :162.00   Max.   :51.000   Max.   :93.000  
+    ##   num_keywords    n_tokens_content n_unique_tokens 
+    ##  Min.   : 1.000   Min.   :   0.0   Min.   :0.0000  
+    ##  1st Qu.: 6.000   1st Qu.: 248.0   1st Qu.:0.4738  
+    ##  Median : 7.000   Median : 397.5   Median :0.5427  
+    ##  Mean   : 7.153   Mean   : 538.2   Mean   :0.5308  
+    ##  3rd Qu.: 9.000   3rd Qu.: 711.0   3rd Qu.:0.6088  
+    ##  Max.   :10.000   Max.   :7764.0   Max.   :1.0000  
+    ##  data_channel_is_entertainment data_channel_is_bus data_channel_is_socmed
+    ##  Min.   :0.0000                Min.   :0.0000      Min.   :0.00000       
+    ##  1st Qu.:0.0000                1st Qu.:0.0000      1st Qu.:0.00000       
+    ##  Median :0.0000                Median :0.0000      Median :0.00000       
+    ##  Mean   :0.2059                Mean   :0.1695      Mean   :0.05277       
+    ##  3rd Qu.:0.0000                3rd Qu.:0.0000      3rd Qu.:0.00000       
+    ##  Max.   :1.0000                Max.   :1.0000      Max.   :1.00000       
+    ##  data_channel_is_tech   kw_min_min       kw_max_max       kw_max_avg    
+    ##  Min.   :0.0000       Min.   : -1.00   Min.   :     0   Min.   :     0  
+    ##  1st Qu.:0.0000       1st Qu.: -1.00   1st Qu.:843300   1st Qu.:  3531  
+    ##  Median :0.0000       Median : -1.00   Median :843300   Median :  4255  
+    ##  Mean   :0.1836       Mean   : 26.82   Mean   :748229   Mean   :  5582  
+    ##  3rd Qu.:0.0000       3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  5938  
+    ##  Max.   :1.0000       Max.   :318.00   Max.   :843300   Max.   :298400  
+    ##    kw_avg_avg        LDA_00            LDA_01            LDA_02       
+    ##  Min.   :    0   Min.   :0.01818   Min.   :0.01819   Min.   :0.01819  
+    ##  1st Qu.: 2355   1st Qu.:0.02517   1st Qu.:0.02504   1st Qu.:0.02857  
+    ##  Median : 2832   Median :0.03341   Median :0.03337   Median :0.04000  
+    ##  Mean   : 3074   Mean   :0.18670   Mean   :0.15456   Mean   :0.21064  
+    ##  3rd Qu.: 3535   3rd Qu.:0.24603   3rd Qu.:0.17145   3rd Qu.:0.32402  
+    ##  Max.   :33536   Max.   :0.91999   Max.   :0.91997   Max.   :0.92000  
+    ##      LDA_03            LDA_04        title_sentiment_polarity
+    ##  Min.   :0.01819   Min.   :0.01818   Min.   :-1.00000        
+    ##  1st Qu.:0.02857   1st Qu.:0.02857   1st Qu.: 0.00000        
+    ##  Median :0.04000   Median :0.04001   Median : 0.00000        
+    ##  Mean   :0.21781   Mean   :0.23029   Mean   : 0.06694        
+    ##  3rd Qu.:0.35340   3rd Qu.:0.39356   3rd Qu.: 0.13636        
+    ##  Max.   :0.91998   Max.   :0.92708   Max.   : 1.00000        
+    ##  global_subjectivity self_reference_avg_sharess min_positive_polarity
+    ##  Min.   :0.0000      Min.   :     0             Min.   :0.00000      
+    ##  1st Qu.:0.3951      1st Qu.:  1000             1st Qu.:0.05000      
+    ##  Median :0.4512      Median :  2168             Median :0.10000      
+    ##  Mean   :0.4402      Mean   :  6321             Mean   :0.09543      
+    ##  3rd Qu.:0.5047      3rd Qu.:  5200             3rd Qu.:0.10000      
+    ##  Max.   :1.0000      Max.   :690400             Max.   :1.00000
 
 ## Oringinal Accuracy
 
@@ -582,6 +588,6 @@ had done the job well.
 
 # Conclusion
 
-For *ne* data, I would choose the Bagged Tree because it fit testing
+For MONDAY data, I would choose the Bagged Tree because it fit testing
 data sets better. And if I use this model, I would expect 36.42% as its
 misclassification rate.

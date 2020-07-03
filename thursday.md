@@ -79,10 +79,11 @@ data sets into two data sets, one is the training data set (70% of the
 data) and the other is the testing data set (30% of the data).
 
 ``` r
+weekday_is <- paste0("weekday_is_", params$weekday)
 # read the raw data
 newsData <- read_csv("data/OnlineNewsPopularity.csv")%>%
   # for specific weekday
-  filter(weekday_is_monday==1)%>%
+  filter(.data[[weekday_is]]==1)%>%
   # add new variable as an indicator of shares group
   mutate(sharesInd = ifelse(shares < 1400,0,1))%>%
   # select response and predictors we interested
@@ -115,13 +116,13 @@ newsDataTest <- newsData[test, ]
 dim(newsDataTrain)
 ```
 
-    ## [1] 4662   24
+    ## [1] 5086   24
 
 ``` r
 dim(newsDataTest)
 ```
 
-    ## [1] 1999   24
+    ## [1] 2181   24
 
 From the above 23 potential predictors, we use mallow’s cp and BIC to
 choose the variables which can be used in the linear model. Therefore,
@@ -152,11 +153,11 @@ varName <- colnames(selectData)[which(selectData[1,] == 1)][-1]
 varName
 ```
 
-    ## [1] "num_keywords"                  "data_channel_is_entertainment"
-    ## [3] "data_channel_is_bus"           "data_channel_is_socmed"       
-    ## [5] "kw_max_max"                    "kw_max_avg"                   
-    ## [7] "kw_avg_avg"                    "LDA_00"                       
-    ## [9] "LDA_04"
+    ## [1] "n_unique_tokens"               "data_channel_is_entertainment"
+    ## [3] "data_channel_is_socmed"        "data_channel_is_tech"         
+    ## [5] "kw_min_min"                    "kw_max_avg"                   
+    ## [7] "kw_avg_avg"                    "LDA_02"                       
+    ## [9] "global_subjectivity"
 
 ``` r
 # generate the data set only from above results
@@ -172,10 +173,15 @@ newsDataFit <- newsDataTrain %>%
 # reorganize the data to do the correlation analysis
 shares <- as.numeric(newsDataFit$sharesInd)
 cor.data <- cbind(shares, newsDataFit[,-1])
-corrplot(cor(cor.data), lower.col = "steelblue",type="upper",tl.cex = 0.7,title="correlation plot")
+corrplot(cor(cor.data), 
+         lower.col = "steelblue",
+         type="upper",
+         tl.cex = 0.7,
+         title="Correlation Plot",
+         mar=c(0,0,2,0))
 ```
 
-<img src="README_files/figure-gfm/corrplot-1.png" width="200%" />
+<img src="thursday_files/figure-gfm/corrplot-1.png" width="200%" />
 
 ``` r
 # get the name of variables who have positive or negative relationship with our response
@@ -185,24 +191,24 @@ n_idx <- which(cor(newsDataFit[,-1],as.numeric(newsDataFit$sharesInd)) < 0)
 colnames(newsDataFit)[p_idx+1]
 ```
 
-    ## [1] "num_keywords"           "data_channel_is_bus"    "data_channel_is_socmed"
-    ## [4] "kw_max_avg"             "kw_avg_avg"             "LDA_00"                
-    ## [7] "LDA_04"
+    ## [1] "data_channel_is_socmed" "data_channel_is_tech"   "kw_min_min"            
+    ## [4] "kw_max_avg"             "kw_avg_avg"             "global_subjectivity"
 
 ``` r
 # Negative relationships
 colnames(newsDataFit)[n_idx+1]
 ```
 
-    ## [1] "data_channel_is_entertainment" "kw_max_max"
+    ## [1] "n_unique_tokens"               "data_channel_is_entertainment"
+    ## [3] "LDA_02"
 
 There are some variables who might have positive linear relationship
-with our response: num\_hrefs, num\_imgs, num\_keywords,
+with our response: num\_imgs, num\_keywords, n\_tokens\_content,
 n\_unique\_tokens, data\_channel\_is\_entertainment,
-data\_channel\_is\_bus, data\_channel\_is\_socmed.
+data\_channel\_is\_socmed.
 
 And there are some variables who might have negative linear relationship
-with our response: num\_self\_hrefs, n\_tokens\_content.
+with our response: num\_hrefs, num\_self\_hrefs, data\_channel\_is\_bus.
 
 ## Summary Statistics
 
@@ -216,55 +222,55 @@ the maximum of each variable.
 summary(newsDataTrain)
 ```
 
-    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs       num_keywords   
-    ##  0:2297    Min.   :  0.00   Min.   : 0.000   Min.   : 0.000   Min.   : 1.000  
-    ##  1:2365    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.: 1.000   1st Qu.: 6.000  
-    ##            Median :  7.00   Median : 3.000   Median : 1.000   Median : 7.000  
-    ##            Mean   : 10.62   Mean   : 3.367   Mean   : 4.382   Mean   : 7.153  
-    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.: 3.000   3rd Qu.: 9.000  
-    ##            Max.   :162.00   Max.   :51.000   Max.   :93.000   Max.   :10.000  
-    ##  n_tokens_content n_unique_tokens  data_channel_is_entertainment
-    ##  Min.   :   0.0   Min.   :0.0000   Min.   :0.0000               
-    ##  1st Qu.: 248.0   1st Qu.:0.4738   1st Qu.:0.0000               
-    ##  Median : 397.5   Median :0.5427   Median :0.0000               
-    ##  Mean   : 538.2   Mean   :0.5308   Mean   :0.2059               
-    ##  3rd Qu.: 711.0   3rd Qu.:0.6088   3rd Qu.:0.0000               
-    ##  Max.   :7764.0   Max.   :1.0000   Max.   :1.0000               
-    ##  data_channel_is_bus data_channel_is_socmed data_channel_is_tech
-    ##  Min.   :0.0000      Min.   :0.00000        Min.   :0.0000      
-    ##  1st Qu.:0.0000      1st Qu.:0.00000        1st Qu.:0.0000      
-    ##  Median :0.0000      Median :0.00000        Median :0.0000      
-    ##  Mean   :0.1695      Mean   :0.05277        Mean   :0.1836      
-    ##  3rd Qu.:0.0000      3rd Qu.:0.00000        3rd Qu.:0.0000      
-    ##  Max.   :1.0000      Max.   :1.00000        Max.   :1.0000      
-    ##    kw_min_min       kw_max_max       kw_max_avg       kw_avg_avg   
-    ##  Min.   : -1.00   Min.   :     0   Min.   :     0   Min.   :    0  
-    ##  1st Qu.: -1.00   1st Qu.:843300   1st Qu.:  3531   1st Qu.: 2355  
-    ##  Median : -1.00   Median :843300   Median :  4255   Median : 2832  
-    ##  Mean   : 26.82   Mean   :748229   Mean   :  5582   Mean   : 3074  
-    ##  3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  5938   3rd Qu.: 3535  
-    ##  Max.   :318.00   Max.   :843300   Max.   :298400   Max.   :33536  
-    ##      LDA_00            LDA_01            LDA_02            LDA_03       
-    ##  Min.   :0.01818   Min.   :0.01819   Min.   :0.01819   Min.   :0.01819  
-    ##  1st Qu.:0.02517   1st Qu.:0.02504   1st Qu.:0.02857   1st Qu.:0.02857  
-    ##  Median :0.03341   Median :0.03337   Median :0.04000   Median :0.04000  
-    ##  Mean   :0.18670   Mean   :0.15456   Mean   :0.21064   Mean   :0.21781  
-    ##  3rd Qu.:0.24603   3rd Qu.:0.17145   3rd Qu.:0.32402   3rd Qu.:0.35340  
-    ##  Max.   :0.91999   Max.   :0.91997   Max.   :0.92000   Max.   :0.91998  
-    ##      LDA_04        title_sentiment_polarity global_subjectivity
-    ##  Min.   :0.01818   Min.   :-1.00000         Min.   :0.0000     
-    ##  1st Qu.:0.02857   1st Qu.: 0.00000         1st Qu.:0.3951     
-    ##  Median :0.04001   Median : 0.00000         Median :0.4512     
-    ##  Mean   :0.23029   Mean   : 0.06694         Mean   :0.4402     
-    ##  3rd Qu.:0.39356   3rd Qu.: 0.13636         3rd Qu.:0.5047     
-    ##  Max.   :0.92708   Max.   : 1.00000         Max.   :1.0000     
-    ##  self_reference_avg_sharess min_positive_polarity
-    ##  Min.   :     0             Min.   :0.00000      
-    ##  1st Qu.:  1000             1st Qu.:0.05000      
-    ##  Median :  2168             Median :0.10000      
-    ##  Mean   :  6321             Mean   :0.09543      
-    ##  3rd Qu.:  5200             3rd Qu.:0.10000      
-    ##  Max.   :690400             Max.   :1.00000
+    ##  sharesInd   num_hrefs      num_self_hrefs      num_imgs      
+    ##  0:2508    Min.   :  0.00   Min.   : 0.000   Min.   :  0.000  
+    ##  1:2578    1st Qu.:  4.00   1st Qu.: 1.000   1st Qu.:  1.000  
+    ##            Median :  7.00   Median : 2.000   Median :  1.000  
+    ##            Mean   : 10.56   Mean   : 3.131   Mean   :  4.413  
+    ##            3rd Qu.: 13.00   3rd Qu.: 4.000   3rd Qu.:  3.000  
+    ##            Max.   :140.00   Max.   :56.000   Max.   :100.000  
+    ##   num_keywords    n_tokens_content n_unique_tokens 
+    ##  Min.   : 1.000   Min.   :   0.0   Min.   :0.0000  
+    ##  1st Qu.: 6.000   1st Qu.: 245.0   1st Qu.:0.4720  
+    ##  Median : 7.000   Median : 398.5   Median :0.5408  
+    ##  Mean   : 7.156   Mean   : 538.8   Mean   :0.5314  
+    ##  3rd Qu.: 9.000   3rd Qu.: 697.8   3rd Qu.:0.6093  
+    ##  Max.   :10.000   Max.   :4585.0   Max.   :0.9545  
+    ##  data_channel_is_entertainment data_channel_is_bus data_channel_is_socmed
+    ##  Min.   :0.0000                Min.   :0.0000      Min.   :0.00000       
+    ##  1st Qu.:0.0000                1st Qu.:0.0000      1st Qu.:0.00000       
+    ##  Median :0.0000                Median :0.0000      Median :0.00000       
+    ##  Mean   :0.1697                Mean   :0.1764      Mean   :0.06076       
+    ##  3rd Qu.:0.0000                3rd Qu.:0.0000      3rd Qu.:0.00000       
+    ##  Max.   :1.0000                Max.   :1.0000      Max.   :1.00000       
+    ##  data_channel_is_tech   kw_min_min       kw_max_max       kw_max_avg    
+    ##  Min.   :0.0000       Min.   : -1.00   Min.   : 11100   Min.   :  2241  
+    ##  1st Qu.:0.0000       1st Qu.: -1.00   1st Qu.:843300   1st Qu.:  3573  
+    ##  Median :0.0000       Median : -1.00   Median :843300   Median :  4333  
+    ##  Mean   :0.1754       Mean   : 27.39   Mean   :749665   Mean   :  5665  
+    ##  3rd Qu.:0.0000       3rd Qu.:  4.00   3rd Qu.:843300   3rd Qu.:  6012  
+    ##  Max.   :1.0000       Max.   :377.00   Max.   :843300   Max.   :128500  
+    ##    kw_avg_avg        LDA_00            LDA_01            LDA_02       
+    ##  Min.   :  489   Min.   :0.01818   Min.   :0.01818   Min.   :0.01818  
+    ##  1st Qu.: 2381   1st Qu.:0.02526   1st Qu.:0.02502   1st Qu.:0.02857  
+    ##  Median : 2865   Median :0.03430   Median :0.03335   Median :0.04002  
+    ##  Mean   : 3126   Mean   :0.19720   Mean   :0.13972   Mean   :0.21750  
+    ##  3rd Qu.: 3569   3rd Qu.:0.28476   3rd Qu.:0.15178   3rd Qu.:0.32720  
+    ##  Max.   :24260   Max.   :0.92000   Max.   :0.91997   Max.   :0.92000  
+    ##      LDA_03            LDA_04        title_sentiment_polarity
+    ##  Min.   :0.01818   Min.   :0.01818   Min.   :-1.00000        
+    ##  1st Qu.:0.02655   1st Qu.:0.02857   1st Qu.: 0.00000        
+    ##  Median :0.04000   Median :0.05000   Median : 0.00000        
+    ##  Mean   :0.21549   Mean   :0.23009   Mean   : 0.06867        
+    ##  3rd Qu.:0.35064   3rd Qu.:0.39236   3rd Qu.: 0.13854        
+    ##  Max.   :0.91994   Max.   :0.92645   Max.   : 1.00000        
+    ##  global_subjectivity self_reference_avg_sharess min_positive_polarity
+    ##  Min.   :0.0000      Min.   :     0             Min.   :0.00000      
+    ##  1st Qu.:0.3957      1st Qu.:   926             1st Qu.:0.05000      
+    ##  Median :0.4523      Median :  2185             Median :0.10000      
+    ##  Mean   :0.4423      Mean   :  6162             Mean   :0.09614      
+    ##  3rd Qu.:0.5082      3rd Qu.:  5040             3rd Qu.:0.10000      
+    ##  Max.   :0.9222      Max.   :690400             Max.   :0.75000
 
 ## Oringinal Accuracy
 
@@ -278,7 +284,7 @@ orgAccuracyTrain
 ```
 
     ##      1 
-    ## 0.5073
+    ## 0.5069
 
 ``` r
 # accuracy for testing data set if we treat all the shares as in the >= 1400 group
@@ -287,7 +293,7 @@ orgAccuracyTest
 ```
 
     ##      1 
-    ## 0.5133
+    ## 0.5002
 
 # Modeling
 
@@ -317,28 +323,28 @@ summary(linearModel)
     ## 
     ## Deviance Residuals: 
     ##     Min       1Q   Median       3Q      Max  
-    ## -3.0508  -1.0631   0.4736   1.0756   1.9327  
+    ## -2.2026  -1.0507   0.5923   1.0552   1.8460  
     ## 
     ## Coefficients:
     ##                               Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)                    0.04486    0.03105   1.445 0.148509    
-    ## num_keywords                   0.15731    0.03264   4.820 1.43e-06 ***
-    ## data_channel_is_entertainment -0.14625    0.03502  -4.176 2.97e-05 ***
-    ## data_channel_is_bus           -0.21051    0.05745  -3.664 0.000248 ***
-    ## data_channel_is_socmed         0.20494    0.03893   5.265 1.40e-07 ***
-    ## kw_max_max                    -0.18254    0.03294  -5.542 2.99e-08 ***
-    ## kw_max_avg                    -0.52231    0.05855  -8.921  < 2e-16 ***
-    ## kw_avg_avg                     0.87737    0.05928  14.800  < 2e-16 ***
-    ## LDA_00                         0.39865    0.05908   6.748 1.50e-11 ***
-    ## LDA_04                         0.27954    0.03545   7.886 3.13e-15 ***
+    ## (Intercept)                    0.03501    0.02967   1.180    0.238    
+    ## n_unique_tokens               -0.18855    0.03432  -5.494 3.93e-08 ***
+    ## data_channel_is_entertainment -0.20682    0.03181  -6.503 7.89e-11 ***
+    ## data_channel_is_socmed         0.21647    0.03258   6.644 3.05e-11 ***
+    ## data_channel_is_tech           0.20490    0.03222   6.359 2.03e-10 ***
+    ## kw_min_min                     0.22075    0.03158   6.990 2.75e-12 ***
+    ## kw_max_avg                    -0.41168    0.05531  -7.443 9.86e-14 ***
+    ## kw_avg_avg                     0.69397    0.05923  11.717  < 2e-16 ***
+    ## LDA_02                        -0.20109    0.03481  -5.778 7.58e-09 ***
+    ## global_subjectivity            0.18059    0.03453   5.229 1.70e-07 ***
     ## ---
     ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
     ## 
     ## (Dispersion parameter for binomial family taken to be 1)
     ## 
-    ##     Null deviance: 6461.9  on 4661  degrees of freedom
-    ## Residual deviance: 5963.8  on 4652  degrees of freedom
-    ## AIC: 5983.8
+    ##     Null deviance: 7049.7  on 5085  degrees of freedom
+    ## Residual deviance: 6502.9  on 5076  degrees of freedom
+    ## AIC: 6522.9
     ## 
     ## Number of Fisher Scoring iterations: 4
 
@@ -357,28 +363,28 @@ linearFit
     ## 
     ##           Reference
     ## Prediction    0    1
-    ##          0 1476  887
-    ##          1  821 1478
-    ##                                           
-    ##                Accuracy : 0.6336          
-    ##                  95% CI : (0.6196, 0.6475)
-    ##     No Information Rate : 0.5073          
-    ##     P-Value [Acc > NIR] : <2e-16          
-    ##                                           
-    ##                   Kappa : 0.2674          
-    ##                                           
-    ##  Mcnemar's Test P-Value : 0.1158          
-    ##                                           
-    ##             Sensitivity : 0.6426          
-    ##             Specificity : 0.6249          
-    ##          Pos Pred Value : 0.6246          
-    ##          Neg Pred Value : 0.6429          
-    ##              Prevalence : 0.4927          
-    ##          Detection Rate : 0.3166          
-    ##    Detection Prevalence : 0.5069          
-    ##       Balanced Accuracy : 0.6338          
-    ##                                           
-    ##        'Positive' Class : 0               
+    ##          0 1601  889
+    ##          1  907 1689
+    ##                                         
+    ##                Accuracy : 0.6469        
+    ##                  95% CI : (0.6336, 0.66)
+    ##     No Information Rate : 0.5069        
+    ##     P-Value [Acc > NIR] : <2e-16        
+    ##                                         
+    ##                   Kappa : 0.2935        
+    ##                                         
+    ##  Mcnemar's Test P-Value : 0.6883        
+    ##                                         
+    ##             Sensitivity : 0.6384        
+    ##             Specificity : 0.6552        
+    ##          Pos Pred Value : 0.6430        
+    ##          Neg Pred Value : 0.6506        
+    ##              Prevalence : 0.4931        
+    ##          Detection Rate : 0.3148        
+    ##    Detection Prevalence : 0.4896        
+    ##       Balanced Accuracy : 0.6468        
+    ##                                         
+    ##        'Positive' Class : 0             
     ## 
 
 ## Non-linear Model
@@ -405,17 +411,17 @@ treebagFit
 
     ## Bagged CART 
     ## 
-    ## 4662 samples
+    ## 5086 samples
     ##   23 predictor
     ##    2 classes: '0', '1' 
     ## 
     ## Pre-processing: centered (23), scaled (23) 
     ## Resampling: Bootstrapped (25 reps) 
-    ## Summary of sample sizes: 4662, 4662, 4662, 4662, 4662, 4662, ... 
+    ## Summary of sample sizes: 5086, 5086, 5086, 5086, 5086, 5086, ... 
     ## Resampling results:
     ## 
     ##   Accuracy   Kappa    
-    ##   0.6137421  0.2277363
+    ##   0.6229077  0.2456126
 
 # Model Testing
 
@@ -444,28 +450,28 @@ linearResult
     ## 
     ##           Reference
     ## Prediction   0   1
-    ##          0 598 368
-    ##          1 375 658
-    ##                                           
-    ##                Accuracy : 0.6283          
-    ##                  95% CI : (0.6067, 0.6495)
-    ##     No Information Rate : 0.5133          
-    ##     P-Value [Acc > NIR] : <2e-16          
-    ##                                           
-    ##                   Kappa : 0.256           
-    ##                                           
-    ##  Mcnemar's Test P-Value : 0.8258          
-    ##                                           
-    ##             Sensitivity : 0.6146          
-    ##             Specificity : 0.6413          
-    ##          Pos Pred Value : 0.6190          
-    ##          Neg Pred Value : 0.6370          
-    ##              Prevalence : 0.4867          
-    ##          Detection Rate : 0.2991          
-    ##    Detection Prevalence : 0.4832          
-    ##       Balanced Accuracy : 0.6280          
-    ##                                           
-    ##        'Positive' Class : 0               
+    ##          0 684 378
+    ##          1 406 713
+    ##                                         
+    ##                Accuracy : 0.6405        
+    ##                  95% CI : (0.62, 0.6607)
+    ##     No Information Rate : 0.5002        
+    ##     P-Value [Acc > NIR] : <2e-16        
+    ##                                         
+    ##                   Kappa : 0.2811        
+    ##                                         
+    ##  Mcnemar's Test P-Value : 0.3349        
+    ##                                         
+    ##             Sensitivity : 0.6275        
+    ##             Specificity : 0.6535        
+    ##          Pos Pred Value : 0.6441        
+    ##          Neg Pred Value : 0.6372        
+    ##              Prevalence : 0.4998        
+    ##          Detection Rate : 0.3136        
+    ##    Detection Prevalence : 0.4869        
+    ##       Balanced Accuracy : 0.6405        
+    ##                                         
+    ##        'Positive' Class : 0             
     ## 
 
 ## Non-linear Model
@@ -486,26 +492,26 @@ treebagResult
     ## 
     ##           Reference
     ## Prediction   0   1
-    ##          0 589 344
-    ##          1 384 682
+    ##          0 678 389
+    ##          1 412 702
     ##                                          
-    ##                Accuracy : 0.6358         
-    ##                  95% CI : (0.6143, 0.657)
-    ##     No Information Rate : 0.5133         
+    ##                Accuracy : 0.6327         
+    ##                  95% CI : (0.6121, 0.653)
+    ##     No Information Rate : 0.5002         
     ##     P-Value [Acc > NIR] : <2e-16         
     ##                                          
-    ##                   Kappa : 0.2703         
+    ##                   Kappa : 0.2655         
     ##                                          
-    ##  Mcnemar's Test P-Value : 0.1483         
+    ##  Mcnemar's Test P-Value : 0.437          
     ##                                          
-    ##             Sensitivity : 0.6053         
-    ##             Specificity : 0.6647         
-    ##          Pos Pred Value : 0.6313         
-    ##          Neg Pred Value : 0.6398         
-    ##              Prevalence : 0.4867         
-    ##          Detection Rate : 0.2946         
-    ##    Detection Prevalence : 0.4667         
-    ##       Balanced Accuracy : 0.6350         
+    ##             Sensitivity : 0.6220         
+    ##             Specificity : 0.6434         
+    ##          Pos Pred Value : 0.6354         
+    ##          Neg Pred Value : 0.6302         
+    ##              Prevalence : 0.4998         
+    ##          Detection Rate : 0.3109         
+    ##    Detection Prevalence : 0.4892         
+    ##       Balanced Accuracy : 0.6327         
     ##                                          
     ##        'Positive' Class : 0              
     ## 
@@ -536,9 +542,9 @@ kable(Accuracytable,
 
 |                     |  Train |   Test |
 | ------------------- | -----: | -----: |
-| Logistic Regression | 0.6336 | 0.6283 |
-| Bagged Tree         | 0.6137 | 0.6358 |
-| Original Data       | 0.5073 | 0.5133 |
+| Logistic Regression | 0.6469 | 0.6405 |
+| Bagged Tree         | 0.6229 | 0.6327 |
+| Original Data       | 0.5069 | 0.5002 |
 
 Accuracy Table
 
@@ -551,9 +557,9 @@ kable(APERtable ,
 
 |                     |  Train |   Test |
 | ------------------- | -----: | -----: |
-| Logistic Regression | 0.3664 | 0.3717 |
-| Bagged Tree         | 0.3863 | 0.3642 |
-| Original Data       | 0.4927 | 0.4867 |
+| Logistic Regression | 0.3531 | 0.3595 |
+| Bagged Tree         | 0.3771 | 0.3673 |
+| Original Data       | 0.4931 | 0.4998 |
 
 APER Table
 
@@ -571,17 +577,17 @@ bestTestModel <- APERtable %>% arrange(Accuracy.1)
 rownames(bestTestModel[1,])
 ```
 
-    ## [1] "Bagged Tree"
+    ## [1] "Logistic Regression"
 
 According to the results of the APER table, we would choose the smallest
 value as the best model for each data set. In this case, our best model
 for the training data set is Logistic Regression and the best model for
-testing data set is Bagged Tree. However, if the best model turns out to
-be the Original Data, neither the linear model nor the non-linear model
-had done the job well.
+testing data set is Logistic Regression. However, if the best model
+turns out to be the Original Data, neither the linear model nor the
+non-linear model had done the job well.
 
 # Conclusion
 
-For *ne* data, I would choose the Bagged Tree because it fit testing
-data sets better. And if I use this model, I would expect 36.42% as its
-misclassification rate.
+For THURSDAY data, I would choose the Logistic Regression because it fit
+testing data sets better. And if I use this model, I would expect 35.95%
+as its misclassification rate.
