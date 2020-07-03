@@ -2,7 +2,12 @@ Project2
 ================
 Zhijun Liu
 2020-07-02
-[Monday](monday.md)
+
+
+[Monday analysis is here](monday.md)
+[tuesday analysis is here](tuesday.md)
+
+
   - [Introduction](#introduction)
   - [Data](#data)
   - [Summarizations](#summarizations)
