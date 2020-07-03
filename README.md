@@ -3,8 +3,10 @@ Automating
 Zhijun Liu
 7/2/2020
 
+
   - [Automating Process](#automating-process)
   - [Link of Each Weekday](#link-of-each-weekday)
+
 
 # Automating Process
 
