@@ -8,7 +8,7 @@ output:
 ---
 
 # Automating Process
-```{r include=FALSE}
+```{r}
 # prepare for the library
 library(rmarkdown)
 library(tidyverse)
