@@ -23,7 +23,6 @@ library(corrplot)
 ```
 
 
-
 # Introduction
 
 [This dataset summarizes a heterogeneous set of features about articles published by Mashable in a period of two years.](https://archive.ics.uci.edu/ml/datasets/Online+News+Popularity) In this project, we try to use a logistic regression model (linear model) and a bagged tree model (non-linear model) to predict the number of shares in social networks.
@@ -162,7 +161,7 @@ From the summary results of our training data set, we know that the exact number
 summary(newsDataTrain)
 ```
 
-## Oringinal Accuracy
+## Original Accuracy
 
 According to the contingency table, we calculate the accuracy for each data set by treating all the shares as in the ">= 1400" group.
 
@@ -177,7 +176,7 @@ orgAccuracyTest
 
 # Modeling
 ## Linear Model
-We use the variables to choose from mallow's cp and BIC as our predictors in the linear model. Therefore, we use `newsDataFit` data set for the linear model. But before fitting the model we should standardize our data first. And then, we need to calculate odds for given predictors and convert them into binary variables. After the prediction process, we using the confusion matrix to get the accuracy of the linear model for the training data set.
+We use the variables to choose from mallow's cp and BIC as our predictors in the linear model. Therefore, we use `newsDataFit` data set for the logistic regression model. But before fitting the model we should standardize our data first. And then, we need to calculate odds for given predictors and convert them into binary variables. After the prediction process, we using the confusion matrix to get the accuracy of the linear model for the training data set.
 
 ```{r modelLinear}
 # standardize our data set
